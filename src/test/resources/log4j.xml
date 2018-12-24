@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration>
+
+    <appender name="outputConsole" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d [%t] %5p  (%c.java:%L) - %m%n" />
+        </layout>
+
+        <!--过滤器设置输出的级别 -->
+        <!--日记记录的优先级priority，优先级由高到低分为 OFF ,FATAL ,ERROR ,WARN ,INFO ,DEBUG ,ALL。
+            Log4j建议只使用FATAL ,ERROR ,WARN ,INFO ,DEBUG这五个级别 -->
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">
+            <param name="levelMin" value="all" />
+            <param name="levelMax" value="error" />
+            <param name="AcceptOnMatch" value="true" />
+        </filter>
+    </appender>
+<!--
+    <appender name="outputFile" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="d:\\componentlogs\\log.log" />&lt;!&ndash; 设置日志输出文件名 &ndash;&gt;
+        &lt;!&ndash; 设置是否在重新启动服务时，在原有日志的基础添加新日志 &ndash;&gt;
+        <param name="Append" value="true" />
+        &lt;!&ndash; 设置文件大小 &ndash;&gt;
+        <param name="MaxFileSize" value="50MB" />
+        &lt;!&ndash; 设置文件备份数量 &ndash;&gt;
+        <param name="MaxBackupIndex" value="100" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%d{MM-dd HH:mm:ss SSS\} %-5p] (%c:%L)- %m%n" />
+        </layout>
+    </appender>
+
+    <appender name="outputFile4Message" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="d:\\componentlogs\\log4Message.log" />&lt;!&ndash;
+			设置日志输出文件名 &ndash;&gt;
+        &lt;!&ndash; 设置是否在重新启动服务时，在原有日志的基础添加新日志 &ndash;&gt;
+        <param name="Append" value="true" />
+        &lt;!&ndash; 设置文件大小 &ndash;&gt;
+        <param name="MaxFileSize" value="50MB" />
+        &lt;!&ndash; 设置文件备份数量 &ndash;&gt;
+        <param name="MaxBackupIndex" value="100" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%d{MM-dd HH:mm:ss SSS\} [%t] %-5p] (%c:%L)- %m%n" />
+        </layout>
+    </appender>-->
+
+
+    <root>
+        <priority value="info" />
+        <appender-ref ref="outputConsole" />
+    </root>
+
+</log4j:configuration>
