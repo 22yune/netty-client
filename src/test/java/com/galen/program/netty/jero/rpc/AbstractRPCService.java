@@ -9,7 +9,7 @@ import com.galen.program.netty.jero.Service;
  * @date 2018/10/19
  */
 public class AbstractRPCService implements Service {
-    private TypeService<?,?> services;
+    private TypeService<?, ?> services;
 
     public void open() {
 

@@ -17,6 +17,7 @@ public interface AsyncTcpClient {
 
     /**
      * 消息发送接口  消息接受的处理在channelHandler中。
+     *
      * @param msg
      * @return
      */
@@ -24,6 +25,7 @@ public interface AsyncTcpClient {
 
     /**
      * 底层真正通信的netty的Channel
+     *
      * @return
      */
     Channel channel();

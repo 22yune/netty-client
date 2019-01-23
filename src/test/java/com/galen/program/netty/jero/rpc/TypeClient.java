@@ -8,9 +8,11 @@ package com.galen.program.netty.jero.rpc;
  */
 public interface TypeClient<P, R> {
 
-    /**服务号 对应类，功能号对应到方法  客户端应该可以由服务端生成**/
+    /**
+     * 服务号 对应类，功能号对应到方法  客户端应该可以由服务端生成
+     **/
 
-    R request(P p,int funCode);
+    R request(P p, int funCode);
 
     int funCode();
 

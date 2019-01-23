@@ -47,12 +47,13 @@ public class TimeClient {
             ChannelFuture f = ctx.writeAndFlush(msg2);
             f.addListener(new GenericFutureListener<Future<? super Void>>() {
                 public void operationComplete(Future<? super Void> future) throws Exception {
-                    if(future.isSuccess()){
+                    if (future.isSuccess()) {
                         System.out.println("request success");
                     }
                 }
             });
         }
+
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) {
             ByteBuf m = (ByteBuf) msg; // (1)
@@ -64,6 +65,7 @@ public class TimeClient {
                 m.release();
             }
         }
+
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
             cause.printStackTrace();

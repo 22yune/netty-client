@@ -83,14 +83,15 @@ public class DefaultTcpClientConfig implements TcpClientConfig {
     }
 
 
-    public void addHandler(Class channelHandlerClass){
-        if(handlerFactories == null){
+    public void addHandler(Class channelHandlerClass) {
+        if (handlerFactories == null) {
             handlerFactories = new ArrayList<ChannelHandlerFactory>();
         }
         handlerFactories.add(new ClassChannelHandlerFactory(channelHandlerClass));
     }
-    public void addHandler(ChannelHandler channelHandler){
-        if(handlerFactories == null){
+
+    public void addHandler(ChannelHandler channelHandler) {
+        if (handlerFactories == null) {
             handlerFactories = new ArrayList<ChannelHandlerFactory>();
         }
         handlerFactories.add(new ObjectChannelHandlerFactory(channelHandler));
@@ -105,30 +106,35 @@ public class DefaultTcpClientConfig implements TcpClientConfig {
         this.handlerFactories = handlerFactories;
     }
 
-    private static class ObjectChannelHandlerFactory implements ChannelHandlerFactory{
+    private static class ObjectChannelHandlerFactory implements ChannelHandlerFactory {
         private ChannelHandler channelHandler;
-        public ObjectChannelHandlerFactory(ChannelHandler channelHandler){
+
+        public ObjectChannelHandlerFactory(ChannelHandler channelHandler) {
             this.channelHandler = channelHandler;
         }
+
         @Override
         public ChannelHandler newChannelHandler() {
             return channelHandler;
         }
     }
-    private static class ClassChannelHandlerFactory implements ChannelHandlerFactory{
+
+    private static class ClassChannelHandlerFactory implements ChannelHandlerFactory {
         private static final Logger logger = LoggerFactory.getLogger(ClassChannelHandlerFactory.class);
         private Class channelHandlerClass;
-        public ClassChannelHandlerFactory(Class channelHandlerClass){
+
+        public ClassChannelHandlerFactory(Class channelHandlerClass) {
             this.channelHandlerClass = channelHandlerClass;
         }
+
         @Override
         public ChannelHandler newChannelHandler() {
             try {
                 return (ChannelHandler) channelHandlerClass.newInstance();
             } catch (InstantiationException e) {
-                logger.error("实例化ChannelHandler失败！",e);
+                logger.error("实例化ChannelHandler失败！", e);
             } catch (IllegalAccessException e) {
-                logger.error("实例化ChannelHandler失败！",e);
+                logger.error("实例化ChannelHandler失败！", e);
             }
             return null;
         }

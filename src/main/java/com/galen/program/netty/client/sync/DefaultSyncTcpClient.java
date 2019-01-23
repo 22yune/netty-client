@@ -20,12 +20,13 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 同步 请求-回复 通信客户端
+ *
  * @param <V>
  */
 public class DefaultSyncTcpClient<V> implements SyncTcpClient<V> {
     private static final Logger logger = LoggerFactory.getLogger(DefaultSyncTcpClient.class.getSimpleName());
 
-    private EventLoopGroup workerGroup ;
+    private EventLoopGroup workerGroup;
 
     private SimpleReusePromise<V> promise;
     private Channel channel;
@@ -33,82 +34,84 @@ public class DefaultSyncTcpClient<V> implements SyncTcpClient<V> {
     private static final int CREATE = 0;
     private static final int OPENED = 1;
     private static final int CLOSED = -1;
-    private volatile int state ;
+    private volatile int state;
 
-    public boolean isOpen(){
+    public boolean isOpen() {
         return state == OPENED;
     }
 
-    public boolean isActive(){
+    public boolean isActive() {
         return isOpen() && channel != null && channel.isActive();
     }
 
-    public DefaultSyncTcpClient(EventLoopGroup workerGroup){
+    public DefaultSyncTcpClient(EventLoopGroup workerGroup) {
         state = CREATE;
         this.workerGroup = workerGroup;
     }
-    public DefaultSyncTcpClient(EventLoopGroup workerGroup,TcpClientConfig config){
+
+    public DefaultSyncTcpClient(EventLoopGroup workerGroup, TcpClientConfig config) {
         this(workerGroup);
         open(config);
     }
 
     @Override
-    public synchronized void open(TcpClientConfig config) throws IllegalStateException{
-        if(state != CREATE){
+    public synchronized void open(TcpClientConfig config) throws IllegalStateException {
+        if (state != CREATE) {
             throw new IllegalStateException("Channel has opened or closed!");
         }
         createChannel(config);
-        if(channel != null){
+        if (channel != null) {
             state = OPENED;
         }
     }
 
     @Override
-    public V send(Object msg) throws Exception{
-        return send(msg,-1);
+    public V send(Object msg) throws Exception {
+        return send(msg, -1);
     }
 
     @Override
-    public synchronized V send(Object msg,long time) throws Exception{
-        if(state != OPENED){
+    public synchronized V send(Object msg, long time) throws Exception {
+        if (state != OPENED) {
             throw new IllegalStateException("Channel have not opened!");
         }
         try {
-            Promise newPromise  = new DefaultPromise<V>(channel.eventLoop());
+            Promise newPromise = new DefaultPromise<V>(channel.eventLoop());
 
-            if(!promise.repeat(newPromise)){
+            if (!promise.repeat(newPromise)) {
                 throw new RuntimeException("[code] promise repeat error.");
             }
             ChannelFuture f = channel.writeAndFlush(msg);
             f.addListener(new GenericFutureListener<Future<? super Void>>() {
                 public void operationComplete(Future<? super Void> future) throws Exception {
-                    if(future.isSuccess()){
+                    if (future.isSuccess()) {
                         logger.info(channel.toString() + " : send success");
-                    }else {
+                    } else {
                         logger.info(channel.toString() + " : send error " + future.cause().toString());
                         promise.tryFailure(future.cause());
                     }
                 }
             });
-            if(time == -1) {
+            if (time == -1) {
                 return promise.get();
             } else {
-                return promise.get(time,TimeUnit.MILLISECONDS);
+                return promise.get(time, TimeUnit.MILLISECONDS);
             }
         } catch (Exception e) {
             throw e;
         }
     }
+
     @Override
-    public synchronized void close() throws IllegalStateException{
-        if(state != OPENED){
+    public synchronized void close() throws IllegalStateException {
+        if (state != OPENED) {
             throw new IllegalStateException("Channel have not opened!");
         }
         state = CLOSED;
         channel.close();
     }
 
-    private synchronized void createChannel(final TcpClientConfig tcpClientConfig){
+    private synchronized void createChannel(final TcpClientConfig tcpClientConfig) {
         try {
             final List<TcpClientConfig.ChannelHandlerFactory> handlerFactories = tcpClientConfig.getHandlerFactories();
 
@@ -118,15 +121,15 @@ public class DefaultSyncTcpClient<V> implements SyncTcpClient<V> {
 
             Map<ChannelOption<?>, Object> options = tcpClientConfig.options();
             synchronized (options) {
-                for (Map.Entry<ChannelOption<?>, Object> e: options.entrySet()) {
+                for (Map.Entry<ChannelOption<?>, Object> e : options.entrySet()) {
                     b.option((ChannelOption<Object>) e.getKey(), e.getValue());
                 }
             }
 
             final Map<AttributeKey<?>, Object> attrs = tcpClientConfig.attrs();
             synchronized (attrs) {
-                for (Map.Entry<AttributeKey<?>, Object> e: attrs.entrySet()) {
-                    b.attr((AttributeKey<Object>) e.getKey(),e.getValue());
+                for (Map.Entry<AttributeKey<?>, Object> e : attrs.entrySet()) {
+                    b.attr((AttributeKey<Object>) e.getKey(), e.getValue());
                 }
             }
 
@@ -134,8 +137,8 @@ public class DefaultSyncTcpClient<V> implements SyncTcpClient<V> {
                 @Override
                 public void initChannel(SocketChannel ch) throws Exception {
                     ch.pipeline().addLast(getSyncHandle());
-                    if(handlerFactories != null){
-                        for(TcpClientConfig.ChannelHandlerFactory factory : handlerFactories){
+                    if (handlerFactories != null) {
+                        for (TcpClientConfig.ChannelHandlerFactory factory : handlerFactories) {
                             ch.pipeline().addLast(factory.newChannelHandler());
                         }
                     }
@@ -147,30 +150,29 @@ public class DefaultSyncTcpClient<V> implements SyncTcpClient<V> {
             f.channel().closeFuture().addListener(new GenericFutureListener<Future<? super Void>>() {
                 @Override
                 public void operationComplete(Future<? super Void> future) throws Exception {
-                    if(isOpen()){
+                    if (isOpen()) {
                         createChannel(tcpClientConfig);
                     }
                 }
             });
 
-            channel =  f.channel();
+            channel = f.channel();
         } catch (InterruptedException e) {
-            logger.error("",e);
+            logger.error("", e);
         } finally {
 
         }
     }
 
-    private ChannelHandler getSyncHandle(){
+    private ChannelHandler getSyncHandle() {
         promise = new SimpleReusePromise<V>();
-        return new ChannelHandlerAdapter(){
+        return new ChannelHandlerAdapter() {
             @Override
             public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-                if(evt instanceof DefaultSyncTcpClient.CompleteEvent){
-                    if(((CompleteEvent) evt).isSuccess()) {
+                if (evt instanceof DefaultSyncTcpClient.CompleteEvent) {
+                    if (((CompleteEvent) evt).isSuccess()) {
                         promise.trySuccess((V) ((CompleteEvent) evt).getMessage());
-                    }
-                    else {
+                    } else {
                         promise.tryFailure(((CompleteEvent) evt).getCause());
                     }
                 }
@@ -186,14 +188,15 @@ public class DefaultSyncTcpClient<V> implements SyncTcpClient<V> {
     public static class SyncClientCompleteHandler<T> extends ChannelHandlerAdapter {
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) {
-            if(logger.isDebugEnabled()){
+            if (logger.isDebugEnabled()) {
                 logger.debug("收到消息" + msg.toString());
             }
             ctx.pipeline().fireUserEventTriggered(new CompleteEvent((T) msg));
         }
+
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-            logger.error("同步请求发生异常！" ,cause);
+            logger.error("同步请求发生异常！", cause);
             ctx.pipeline().fireUserEventTriggered(new CompleteEvent(cause));
             ctx.close();
         }

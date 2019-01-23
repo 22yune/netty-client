@@ -9,14 +9,16 @@ package com.galen.program.netty.jero;
 public class ServerDeployUtil {
 
 
-    public static class Deploy{
-        public Deploy(String address){
+    public static class Deploy {
+        public Deploy(String address) {
 
         }
-        public static int open(Service service){
+
+        public static int open(Service service) {
             return 0;
         }
-        public static boolean close(int service){
+
+        public static boolean close(int service) {
             return true;
         }
     }

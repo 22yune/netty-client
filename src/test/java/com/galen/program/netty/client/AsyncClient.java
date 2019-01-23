@@ -20,8 +20,9 @@ import java.util.concurrent.TimeUnit;
 public class AsyncClient {
 
     private static ReconnectAsyncTcpClient channel;
+
     @BeforeClass
-    public static void before(){
+    public static void before() {
         DefaultTcpClientConfig channelConfig = new DefaultTcpClientConfig();
         channelConfig.setIp("localhost");
         channelConfig.setPort(8066);
@@ -37,27 +38,30 @@ public class AsyncClient {
             throw new RuntimeException(e);
         }
     }
+
     @Test
-    public void send1(){
+    public void send1() {
         String send = "send1";
         channel.send(send);
     }
+
     @Test
-    public void send3(){
+    public void send3() {
         final CountDownLatch count = new CountDownLatch(100);
         final ExecutorService executorService = Executors.newFixedThreadPool(8);
-        for(int i = 0; i < 100; i++){
-            final String send = "send "+i;
+        for (int i = 0; i < 100; i++) {
+            final String send = "send " + i;
             final Runnable runnable = new Runnable() {
                 private Runnable inner;
+
                 public void run() {
                     inner = this;
                     ChannelFuture future = channel.channel().writeAndFlush(send);
                     future.addListener(new GenericFutureListener<Future<? super Void>>() {
                         public void operationComplete(Future<? super Void> future) throws Exception {
-                            if(!future.isSuccess()){
+                            if (!future.isSuccess()) {
                                 executorService.submit(inner);
-                            }else {
+                            } else {
                                 count.countDown();
                             }
                         }
@@ -70,14 +74,14 @@ public class AsyncClient {
         try {
             count.await();
             executorService.shutdown();
-            executorService.awaitTermination(30,TimeUnit.SECONDS);
+            executorService.awaitTermination(30, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
     @AfterClass
-    public static void after(){
+    public static void after() {
         channel.close();
     }
 
@@ -86,15 +90,17 @@ public class AsyncClient {
         @Override
         public void channelActive(final ChannelHandlerContext ctx) {
             try {
-            //    channel.send("test async");
+                //    channel.send("test async");
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) {
             System.out.println(msg);
         }
+
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
             cause.printStackTrace();

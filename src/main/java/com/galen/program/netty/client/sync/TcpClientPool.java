@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 /**
  * @see NioSocketChannel 对象池
  */
-public class TcpClientPool extends GenericKeyedObjectPool<TcpClientConfig,Channel>{
+public class TcpClientPool extends GenericKeyedObjectPool<TcpClientConfig, Channel> {
     private static Logger logger = Logger.getLogger(TcpClientPool.class.getSimpleName());
     private EventLoopGroup workerGroup;
     private static final int DEFAULT_EVENT_LOOP_THREADS;
@@ -32,6 +32,7 @@ public class TcpClientPool extends GenericKeyedObjectPool<TcpClientConfig,Channe
         DEFAULT_EVENT_LOOP_THREADS = Math.max(1, SystemPropertyUtil.getInt(
                 "io.netty.eventLoopThreads", Runtime.getRuntime().availableProcessors() * 2));
     }
+
     public TcpClientPool() {
         super(ChannelFactory.INSTANCE);
         workerGroup = new NioEventLoopGroup();
@@ -40,7 +41,7 @@ public class TcpClientPool extends GenericKeyedObjectPool<TcpClientConfig,Channe
 
     public TcpClientPool(GenericKeyedObjectPoolConfig config) {
         super(ChannelFactory.INSTANCE, config);
-        workerGroup = new NioEventLoopGroup(Math.max(config.getMaxTotal() , DEFAULT_EVENT_LOOP_THREADS ) );
+        workerGroup = new NioEventLoopGroup(Math.max(config.getMaxTotal(), DEFAULT_EVENT_LOOP_THREADS));
         ChannelFactory.INSTANCE.workerGroup = workerGroup;
     }
 
@@ -51,7 +52,7 @@ public class TcpClientPool extends GenericKeyedObjectPool<TcpClientConfig,Channe
     }
 
 
-    private static class ChannelFactory extends BaseKeyedPooledObjectFactory<TcpClientConfig, Channel>{
+    private static class ChannelFactory extends BaseKeyedPooledObjectFactory<TcpClientConfig, Channel> {
         private static final ChannelFactory INSTANCE = new ChannelFactory();
         private EventLoopGroup workerGroup;
 
@@ -67,23 +68,23 @@ public class TcpClientPool extends GenericKeyedObjectPool<TcpClientConfig,Channe
 
                 Map<ChannelOption<?>, Object> options = key.options();
                 synchronized (options) {
-                    for (Map.Entry<ChannelOption<?>, Object> e: options.entrySet()) {
+                    for (Map.Entry<ChannelOption<?>, Object> e : options.entrySet()) {
                         b.option((ChannelOption<Object>) e.getKey(), e.getValue());
                     }
                 }
 
                 final Map<AttributeKey<?>, Object> attrs = key.attrs();
                 synchronized (attrs) {
-                    for (Map.Entry<AttributeKey<?>, Object> e: attrs.entrySet()) {
-                        b.attr((AttributeKey<Object>) e.getKey(),e.getValue());
+                    for (Map.Entry<AttributeKey<?>, Object> e : attrs.entrySet()) {
+                        b.attr((AttributeKey<Object>) e.getKey(), e.getValue());
                     }
                 }
 
                 b.handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel ch) throws Exception {
-                        if(handlerFactories != null){
-                            for(TcpClientConfig.ChannelHandlerFactory factory : handlerFactories){
+                        if (handlerFactories != null) {
+                            for (TcpClientConfig.ChannelHandlerFactory factory : handlerFactories) {
                                 ch.pipeline().addLast(factory.newChannelHandler());
                             }
                         }
@@ -106,7 +107,7 @@ public class TcpClientPool extends GenericKeyedObjectPool<TcpClientConfig,Channe
 
         @Override
         public PooledObject<Channel> wrap(Channel value) {
-            return  new DefaultPooledObject<Channel>(value);
+            return new DefaultPooledObject<Channel>(value);
         }
 
         @Override
@@ -118,7 +119,7 @@ public class TcpClientPool extends GenericKeyedObjectPool<TcpClientConfig,Channe
         }
 
         @Override
-        public boolean validateObject(TcpClientConfig key, PooledObject<Channel> p){
+        public boolean validateObject(TcpClientConfig key, PooledObject<Channel> p) {
             Channel channel = p.getObject();
             if (channel.isOpen() && channel.isActive()) {
                 return true;

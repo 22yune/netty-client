@@ -1,7 +1,5 @@
 package com.galen.program.netty.jero;
 
-import java.util.concurrent.Future;
-
 /**
  * Created by baogen.zhang on 2018/10/19
  *
@@ -10,6 +8,8 @@ import java.util.concurrent.Future;
  */
 public interface Client {
     void open();
+
     byte[] request(byte[] p);
+
     void close();
 }

@@ -16,9 +16,11 @@ import java.util.Random;
  */
 public class DiscardServer {
     private int port;
+
     public DiscardServer(int port) {
         this.port = port;
     }
+
     public void run() throws Exception {
         EventLoopGroup bossGroup = new NioEventLoopGroup(8); // (1)
         EventLoopGroup workerGroup = new NioEventLoopGroup(9);
@@ -44,6 +46,7 @@ public class DiscardServer {
             bossGroup.shutdownGracefully();
         }
     }
+
     /**
      * 处理服务端 channel.
      */
@@ -65,7 +68,7 @@ public class DiscardServer {
                     ChannelFuture f = channel.writeAndFlush(msg);
                     f.addListener(new GenericFutureListener<Future<? super Void>>() {
                         public void operationComplete(Future<? super Void> future) throws Exception {
-                            if(future.isSuccess()){
+                            if (future.isSuccess()) {
                                 System.out.println("response success");
                             }
                         }
@@ -74,8 +77,9 @@ public class DiscardServer {
             });
 
             // 默默地丢弃收到的数据
-           // ((ByteBuf) msg).release(); // (3)
+            // ((ByteBuf) msg).release(); // (3)
         }
+
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) { // (4)
             // 当出现异常就关闭连接

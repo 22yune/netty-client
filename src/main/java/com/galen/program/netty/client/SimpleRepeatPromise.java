@@ -31,30 +31,31 @@ public class SimpleRepeatPromise<V> implements RepeatPromise<V> {
     }
 
 
-    protected boolean checkRepeat(Promise<V> nowPromise, Promise<V> newPromise){
-        if(!nowPromise.isDone() || nowPromise.isSuccess()){
+    protected boolean checkRepeat(Promise<V> nowPromise, Promise<V> newPromise) {
+        if (!nowPromise.isDone() || nowPromise.isSuccess()) {
             return false;
         }
         return true;
     }
+
     @Override
     public boolean repeat(Promise<V> promise) {
-        if(isBreakFaith()){
+        if (isBreakFaith()) {
             return false;
         }
         //当前许诺未完成或者已成功时，不能重复许诺。
-        if(this.nowPromise != null && !checkRepeat(nowPromise,promise)){
+        if (this.nowPromise != null && !checkRepeat(nowPromise, promise)) {
             return false;
         }
         //只对breakFaith、listeners和promise做一致性保证。即保证listeners一定设置到promise上，breakFaith后就不能再重复许诺。
-        synchronized (this){
-            if(isBreakFaith()){
+        synchronized (this) {
+            if (isBreakFaith()) {
                 return false;
             }
-            if(!promise.equals(this.nowPromise)){
+            if (!promise.equals(this.nowPromise)) {
                 this.nowPromise = promise;
-                if(listeners != null){
-                    for(GenericFutureListener listener : listeners){
+                if (listeners != null) {
+                    for (GenericFutureListener listener : listeners) {
                         this.nowPromise.addListener(listener);
                     }
                 }
@@ -105,7 +106,7 @@ public class SimpleRepeatPromise<V> implements RepeatPromise<V> {
 
     @Override
     public synchronized Promise<V> addListener(GenericFutureListener<? extends Future<? super V>> listener) {
-        if(listeners == null){
+        if (listeners == null) {
             listeners = new ArrayList<GenericFutureListener>();
         }
         listeners.add(listener);
@@ -118,7 +119,7 @@ public class SimpleRepeatPromise<V> implements RepeatPromise<V> {
             throw new NullPointerException("listeners");
         }
 
-        for (GenericFutureListener<? extends Future<? super V>> l: listeners) {
+        for (GenericFutureListener<? extends Future<? super V>> l : listeners) {
             if (l == null) {
                 break;
             }
@@ -129,7 +130,7 @@ public class SimpleRepeatPromise<V> implements RepeatPromise<V> {
 
     @Override
     public synchronized Promise<V> removeListener(GenericFutureListener<? extends Future<? super V>> listener) {
-        if(listeners != null){
+        if (listeners != null) {
             listeners.remove(listener);
         }
         return nowPromise.removeListener(listener);
@@ -141,7 +142,7 @@ public class SimpleRepeatPromise<V> implements RepeatPromise<V> {
             throw new NullPointerException("listeners");
         }
 
-        for (GenericFutureListener<? extends Future<? super V>> l: listeners) {
+        for (GenericFutureListener<? extends Future<? super V>> l : listeners) {
             if (l == null) {
                 break;
             }
@@ -162,7 +163,7 @@ public class SimpleRepeatPromise<V> implements RepeatPromise<V> {
 
     @Override
     public boolean await(long timeout, TimeUnit unit) throws InterruptedException {
-        return nowPromise.await(timeout,unit);
+        return nowPromise.await(timeout, unit);
     }
 
     @Override
@@ -172,7 +173,7 @@ public class SimpleRepeatPromise<V> implements RepeatPromise<V> {
 
     @Override
     public boolean awaitUninterruptibly(long timeout, TimeUnit unit) {
-        return nowPromise.awaitUninterruptibly(timeout,unit);
+        return nowPromise.awaitUninterruptibly(timeout, unit);
     }
 
     @Override
@@ -207,7 +208,7 @@ public class SimpleRepeatPromise<V> implements RepeatPromise<V> {
 
     @Override
     public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        return nowPromise.get(timeout,unit);
+        return nowPromise.get(timeout, unit);
     }
 
     @Override

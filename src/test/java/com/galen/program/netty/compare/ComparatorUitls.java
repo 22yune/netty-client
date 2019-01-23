@@ -24,23 +24,23 @@ public class ComparatorUitls {
         int nThreads = Runtime.getRuntime().availableProcessors();
         final ExecutorService executorService = new ThreadPoolExecutor(nThreads, nThreads,
                 8L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(nThreads),new ThreadPoolExecutor.CallerRunsPolicy());
+                new LinkedBlockingQueue<Runnable>(nThreads), new ThreadPoolExecutor.CallerRunsPolicy());
         final CompletionService completionService = new ExecutorCompletionService(executorService);
         int size = (int) Math.ceil(a.size() / nThreads);
-        Future<List<T>> future = parallelSort(executorService,size,a,cmp);
+        Future<List<T>> future = parallelSort(executorService, size, a, cmp);
         try {
             return future.get();
         } catch (InterruptedException e) {
-            logger.error("中断异常",e);
+            logger.error("中断异常", e);
         } catch (ExecutionException e) {
-            logger.error("排序代码异常",e);
-        }finally {
+            logger.error("排序代码异常", e);
+        } finally {
             executorService.shutdown();
         }
         return null;
     }
 
-    private static <T> Future<List<T>> parallelSort(final ExecutorService executorService,final Integer size, final List<T> a, final Comparator<? super T> cmp) {
+    private static <T> Future<List<T>> parallelSort(final ExecutorService executorService, final Integer size, final List<T> a, final Comparator<? super T> cmp) {
         Future<List<T>> future = executorService.submit(new Callable<List<T>>() {
             @Override
             public List<T> call() throws Exception {
@@ -250,19 +250,19 @@ public class ComparatorUitls {
     }
 
 
-    interface ToInt<T>{
+    interface ToInt<T> {
         int toInt(T t);
     }
 
-    interface ToLong<T>{
+    interface ToLong<T> {
         Long toLong(T t);
     }
 
-    interface ToDouble<T>{
+    interface ToDouble<T> {
         Double toDouble(T t);
     }
 
-    interface ToString<T>{
+    interface ToString<T> {
         String toString(T t);
     }
 }
